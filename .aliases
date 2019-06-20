@@ -140,3 +140,6 @@ alias prikey="more ~/.ssh/id_ed25519 | xclip -selection clipboard | echo '=> Pri
 
 # Pretty print JSON from STDIN.
 alias jpp="ruby -e \"require 'json'; puts (JSON.pretty_generate JSON.parse(STDIN.read))\""
+
+# Quick chmod +x
+alias cx="chmod +x $1"
