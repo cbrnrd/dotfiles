@@ -38,6 +38,7 @@ if ls --color > /dev/null 2>&1; then # GNU `ls`
 else # OS X `ls`
 	colorflag="-G"
 fi
+colorflag="--color"
 
 # List all files colorized in long format
 # shellcheck disable=SC2139
@@ -137,3 +138,5 @@ alias pubkey="more ~/.ssh/id_ed25519.pub | xclip -selection clipboard | echo '=>
 
 # Pipe my private key to my clipboard.
 alias prikey="more ~/.ssh/id_ed25519 | xclip -selection clipboard | echo '=> Private key copied to pasteboard.'"
+
+alias ginit="git init && git add . && git commit -m 'Initial commit' && git remote add origin https://github.com/cbrnrd/$0;git push -u origin master"

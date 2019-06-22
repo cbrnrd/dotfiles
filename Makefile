@@ -1,6 +1,23 @@
 .PHONY: all
-all: bin dotfiles etc ## Installs the bin and etc directory files and the dotfiles.
+all: bin dotfiles tools ## Installs the bin files, the dotfiles, and things from GitHub.
 
+.PHONY: tools
+tools:
+	TOOLDIR = $(HOME)/tools
+	mkdir $(TOOLDIR)
+
+	# Install go
+	$(shell cd $(TOOLDIR) && git clone https://github.com/travis-ci/gimme && cd gimme && bash gimme stable)
+
+	# Install ruby and some msf packages
+	$(shell cd $(TOOLDIR) && sudo apt install ruby-dev libsqlite3-dev libp1-dev libpcap-dev)
+	$(shell cd $(TOOLDIR) && curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall)
+
+	# Install bettercap
+	$(shell go get github.com/bettercap/bettercap && cd $GOPATH/src/github.com/bettercap/bettercap && make build && sudo make install && sudo bettercap -eval "caplets.update; ui.update; q")
+
+	# Install crystal
+	$(shell curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash)
 .PHONY: bin
 bin: ## Installs the bin directory files.
 	# add aliases for things in bin
@@ -22,29 +39,13 @@ dotfiles: ## Installs the dotfiles.
 	ln -fn $(CURDIR)/gitignore $(HOME)/.gitignore;
 	git update-index --skip-worktree $(CURDIR)/.gitconfig;
 	mkdir -p $(HOME)/.config;
-	ln -snf $(CURDIR)/.i3 $(HOME)/.config/sway;
+	#ln -snf $(CURDIR)/.i3 $(HOME)/.config/sway;
 	mkdir -p $(HOME)/.local/share;
 	ln -snf $(CURDIR)/.fonts $(HOME)/.local/share/fonts;
 	ln -snf $(CURDIR)/.bash_profile $(HOME)/.profile;
 	if [ -f /usr/local/bin/pinentry ]; then \
 		sudo ln -snf /usr/bin/pinentry /usr/local/bin/pinentry; \
 	fi;
-	mkdir -p $(HOME)/Pictures;
-	ln -snf $(CURDIR)/central-park.jpg $(HOME)/Pictures/central-park.jpg;
-
-.PHONY: etc
-etc: ## Installs the etc directory files.
-	sudo mkdir -p /etc/docker/seccomp
-	for file in $(shell find $(CURDIR)/etc -type f -not -name ".*.swp"); do \
-		f=$$(echo $$file | sed -e 's|$(CURDIR)||'); \
-		sudo mkdir -p $$(dirname $$f); \
-		sudo ln -f $$file $$f; \
-	done
-	systemctl --user daemon-reload || true
-	sudo systemctl daemon-reload
-	sudo systemctl enable systemd-networkd systemd-resolved
-	sudo systemctl start systemd-networkd systemd-resolved
-	sudo ln -snf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 .PHONY: test
 test: shellcheck ## Runs all the tests on the files in the repository.
