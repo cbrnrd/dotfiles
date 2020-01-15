@@ -3,14 +3,14 @@ all: bin dotfiles tools ## Installs the bin files, the dotfiles, and things from
 
 .PHONY: tools
 tools:
-	TOOLDIR = $(HOME)/tools
+	TOOLDIR=$(HOME)/tools
 	mkdir $(TOOLDIR)
 
 	# Install go
 	$(shell cd $(TOOLDIR) && git clone https://github.com/travis-ci/gimme && cd gimme && bash gimme stable)
 
 	# Install ruby and some msf packages
-	$(shell cd $(TOOLDIR) && sudo apt install ruby-dev libsqlite3-dev libp1-dev libpcap-dev)
+	$(shell cd $(TOOLDIR) && sudo apt install ruby-dev libsqlite3-dev libpcap-dev)
 	$(shell cd $(TOOLDIR) && curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall)
 
 	# Install bettercap
